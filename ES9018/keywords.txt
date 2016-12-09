@@ -1,0 +1,93 @@
+#######################################
+# Syntax Coloring Map For ES9018
+#######################################
+ 
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+ 
+ES9018	KEYWORD1
+DACMode	KEYWORD1
+DACInputMode	KEYWORD1
+DACDeEmphasis	KEYWORD1
+DACNotchDelay	KEYWORD1
+DACPhase	KEYWORD1
+DACQuantizer	KEYWORD1
+DPLLBandwidth	KEYWORD1
+DPLLMode	KEYWORD1
+DPLL128Mode	KEYWORD1
+FIR_RollOffMode	KEYWORD1
+FIR_Coefficients	KEYWORD1
+IIR_Bandwidth	KEYWORD1
+SPDIFMode	KEYWORD1
+ 
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+ 
+init	KEYWORD2
+locked	KEYWORD2
+validSPDIF	KEYWORD2
+getMode	KEYWORD2
+getAddress	KEYWORD2
+mute	KEYWORD2
+unmute	KEYWORD2
+sampleRate	KEYWORD2
+setAttenuation	KEYWORD2
+setAutoMuteLevel	KEYWORD2
+setBypassOSF	KEYWORD2
+setDeEmphasis	KEYWORD2
+setDPLLMode	KEYWORD2
+setDPLL	KEYWORD2
+setDPLL128Mode	KEYWORD2
+setFIRRollOff	KEYWORD2
+setFIRPhase	KEYWORD2
+setInputMode	KEYWORD2
+setIIRBandwidth	KEYWORD2
+setJitterReductionBypass	KEYWORD2
+setJitterReduction	KEYWORD2
+setQuantizer	KEYWORD2
+setNotchDelay	KEYWORD2
+setPhaseB	KEYWORD2
+setSPDIFMode	KEYWORD2
+setSPDIFAutoDeEmphasis	KEYWORD2
+ 
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+I2SorDSD	LITERAL1
+SPDIF	LITERAL1
+DeEmph32k	LITERAL1
+DeEmph441k	LITERAL1
+DeEmph48k	LITERAL1
+MonoLeft	LITERAL1
+MonoRight	LITERAL1
+EightChannel	LITERAL1
+Stereo	LITERAL1
+NoDelay	LITERAL1
+Delay4	LITERAL1
+Delay8	LITERAL1
+Delay16	LITERAL1
+Delay32	LITERAL1
+Delay64	LITERAL1
+InPhase	LITERAL1
+AntiPhase	LITERAL1
+SixBit	LITERAL1
+SevenBit	LITERAL1
+EightBit	LITERAL1
+NineBit	LITERAL1
+AllowAll	LITERAL1
+UseBest	LITERAL1
+UseDPLLSetting	LITERAL1
+MultiplyBy128	LITERAL1
+Slow	LITERAL1
+Fast	LITERAL1
+FIR27	LITERAL1
+FIR28	LITERAL1
+IIR_Normal	LITERAL1
+IIR_50k	LITERAL1
+IIR_60k	LITERAL1
+IIR_70k	LITERAL1
+SPDIF_Auto	LITERAL1
+SPDIF_Manual	LITERAL1
