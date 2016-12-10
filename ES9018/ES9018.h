@@ -22,6 +22,7 @@
   #include "WConstants.h"
 #endif
 
+enum DACClock{Clock100Mhz, Clock80Mhz};
 enum DACInputMode{SPDIF, I2SorDSD};
 enum DACDeEmphasis{DeEmph32k, DeEmph441k, DeEmph48k};
 enum DACMode{MonoLeft, MonoRight, Stereo, EightChannel};
@@ -41,24 +42,25 @@ class ES9018
   public:
     // default to 8 channel mode with default phase settings and default I2C address 0x48
     ES9018();  
-    // specify mode with default phase settings and default I2C address 0x48
+    // specify mode with default phase settings and default I2C address 0x49 for right mono and 0x48 otherwise
     ES9018(DACMode mode);  
-    // specify whether 8 channel, or mono left/right and channel phase with default I2C address 0x49 for right mono and 0x48 otherwise
+    // specify whether 8 channel, stereo, or mono left/right and channel phase with default I2C address 0x49 for right mono and 0x48 otherwise
     ES9018(DACMode mode, DACPhase oddChannels, DACPhase evenChannels);   
-    // specify whether 8 channel, or mono left/right, channel phase and custom I2C address
+    // specify whether 8 channel, stereo, or mono left/right, channel phase and custom I2C address
     ES9018(DACMode mode, DACPhase oddChannels, DACPhase evenChannels, byte address); 
 
-    void init();          // writes initial register values
+    void init();                                     //  writes all register values for the first time. After an init() any further register changes are written immediately
     boolean locked();
     boolean validSPDIF();
     DACMode getMode();
-    byte getAddress();   // returns the I2C address
+    byte getAddress();                               // returns the I2C address
     void mute();
     void unmute();
     unsigned long sampleRate();
     void setAttenuation(byte attenuation);
     void setAutoMuteLevel(byte level);
     void setBypassOSF(boolean value);
+    void setClock(DACClock value);                  // sets the clock rate used to calculate sample rate
     void setDeEmphasis(DACDeEmphasis mode);
     void setDPLLMode(DPLLMode mode);
     void setDPLL(DPLLBandwidth bandwidth);
@@ -78,6 +80,7 @@ class ES9018
   private:
     DACMode _mode = EightChannel;   // default to eight channel mode
     byte _address = 0x48;           // set default I2C address
+    DACClock _clock = Clock100Mhz;  // set default clock speed to 100Mhz
     boolean _initialised = false;
 
     // Register variables
@@ -104,7 +107,7 @@ class ES9018
  
      NOTE on auto/manual SPDIF selection
      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     Apparentely, auto detection of spdif and I2S (with I2S/DSD enabled in reg 8), only works when the DAC
+     Apparently, auto detection of spdif and I2S (with I2S/DSD enabled in reg 8), only works when the DAC
      powers up. Once you turn off auto-SPDIF and then turn on auto-SPDIF, it will not work with SPDIF input while
      reg 8 is still set for I2S/DSD. In order for SDPIF to work, reg 8 must be set for SPDIF and reg 17 for auto-
      SDPIF. In summary:
@@ -288,8 +291,9 @@ class ES9018
     void _setReg17(byte val);
     void _setReg19(byte val);
     void _setReg25(byte val);
+
     int _writeRegister(byte regAddr, byte regVal); // writes the specified register value to the specified DAC register via I2C
-    void _writeRegisters();
+    void _writeRegisters();                        // write all registers
     void _writeReg0();
     void _writeReg1();
     void _writeReg2();

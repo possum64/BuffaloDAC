@@ -6,6 +6,8 @@ ES9018::ES9018()
 
 ES9018::ES9018(DACMode mode)
 {
+  if (mode == MonoRight)
+    _address = 0x49; // set default I2C address for mono right config
   _setMode(mode);
 }
 
@@ -129,7 +131,10 @@ unsigned long ES9018::sampleRate()
   }
   else 
   {
-    DPLLNum/=3436;   // Calculate SR for I2S 80MHz clock
+    if (_clock == Clock80Mhz)
+      DPLLNum/=3436;   // Calculate SR for I2S 80MHz clock
+    else
+      DPLLNum/=2749;   // Calculate SR for I2S 100MHz clock
   }
   return DPLLNum;
 }
@@ -185,6 +190,11 @@ void ES9018::setBypassOSF(boolean value)
     bitClear(reg17, 5);       // Reg 17: clear relock jitter for normal operation
     _setReg17(reg17);         // Reg 17: Jitter eliminator Normal operation 
   }
+}
+
+void ES9018::setClock(DACClock value)
+{
+  _clock = value;       
 }
 
 void ES9018::setIIRBandwidth(IIR_Bandwidth value)
