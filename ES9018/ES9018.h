@@ -29,13 +29,14 @@ enum DACMode{MonoLeft, MonoRight, Stereo, EightChannel};
 enum DACNotchDelay{NoDelay=0, Delay4=1, Delay8=2, Delay16=3, Delay32=4, Delay64=5};
 enum DACPhase{InPhase, AntiPhase};
 enum DACQuantizer{SixBit=0, SevenBit=1, EightBit=2, NineBit=3};
-enum DPLLBandwidth{None=0, Lowest=1, Low=2, MediumLow=3, Medium=4, MedHigh=5, High=6};
+enum DPLLBandwidth{None=0, Lowest=1, Low=2, MediumLow=3, Medium=4, MedHigh=5, High=6, Highest=7};
 enum DPLLMode{AllowAll, UseBest};
 enum DPLL128Mode{UseDPLLSetting, MultiplyBy128};
 enum FIR_RollOffMode{Slow, Fast}; 
 enum FIR_Coefficients{FIR27, FIR28}; 
 enum IIR_Bandwidth{IIR_Normal, IIR_50k, IIR_60k, IIR_70k}; 
 enum SPDIFMode{SPDIF_Auto, SPDIF_Manual};
+enum Error{NoError=0, ReadTimeoutError=1};
 
 class ES9018 
 {
@@ -49,14 +50,16 @@ class ES9018
     // specify whether 8 channel, stereo, or mono left/right, channel phase and custom I2C address
     ES9018(DACMode mode, DACPhase oddChannels, DACPhase evenChannels, byte address); 
 
-    void init();                                     //  writes all register values for the first time. After an init() any further register changes are written immediately
+    boolean init();                                     //  writes all register values for the first time. After an init() any further register changes are written immediately
     boolean locked();
     boolean validSPDIF();
     DACMode getMode();
     byte getAddress();                               // returns the I2C address
+    Error getError();                                // returns the I2C address
     void mute();
     void unmute();
     unsigned long sampleRate();
+    void setInitialised(boolean val);
     void setAttenuation(byte attenuation);
     void setAutoMuteLevel(byte level);
     void setBypassOSF(boolean value);
@@ -76,12 +79,15 @@ class ES9018
     void setPhaseB(DACPhase value);
     void setSPDIFMode(SPDIFMode mode);
     void setSPDIFAutoDeEmphasis(boolean value);
+    void setReadRetryInterval(int value);
 
   private:
     DACMode _mode = EightChannel;   // default to eight channel mode
     byte _address = 0x48;           // set default I2C address
     DACClock _clock = Clock100Mhz;  // set default clock speed to 100Mhz
-    boolean _initialised = false;
+    boolean _dac_initialised;
+    int _readRetryInterval = 20;    // _readStatusRegister retry interval
+    Error _error;		    // last error
 
     // Register variables
     byte _reg0 = 0;       // channel 1 attenuation;
@@ -132,7 +138,7 @@ class ES9018
       | | | | | | | |0|  unmute
     */
  
-    byte _reg11 = B10000101;               
+    byte _reg11 = B10001110;               
     /*
      Register 11 (0x0B) (MC2)
       |1|0|0| | | | | |  Reserved, Must be 100 (D)
@@ -270,6 +276,7 @@ class ES9018
     boolean _regValChanged19 = false;    // indicates whether the value of register 19 has changed
     boolean _regValChanged25 = true;     // indicates whether the value of register 25 has changed
 
+    boolean _getInitialised();
     byte _readStatusRegister(byte regAddr); 
     void _setMode(DACMode mode);
     void _setPhase(DACPhase oddChannels, DACPhase evenChannels);
@@ -292,26 +299,26 @@ class ES9018
     void _setReg19(byte val);
     void _setReg25(byte val);
 
-    int _writeRegister(byte regAddr, byte regVal); // writes the specified register value to the specified DAC register via I2C
-    void _writeRegisters();                        // write all registers
-    void _writeReg0();
-    void _writeReg1();
-    void _writeReg2();
-    void _writeReg3();
-    void _writeReg4();
-    void _writeReg5();
-    void _writeReg6();
-    void _writeReg7();
-    void _writeReg8();
-    void _writeReg10();
-    void _writeReg11();
-    void _writeReg12();
-    void _writeReg13();
-    void _writeReg14();
-    void _writeReg15();
-    void _writeReg17();
-    void _writeReg19();
-    void _writeReg25();
+    bool _writeRegister(byte regAddr, byte regVal); // writes the specified register value to the specified DAC register via I2C
+    bool _writeRegisters();                        // write all registers
+    int _writeReg0();
+    int _writeReg1();
+    int _writeReg2();
+    int _writeReg3();
+    int _writeReg4();
+    int _writeReg5();
+    int _writeReg6();
+    int _writeReg7();
+    int _writeReg8();
+    int _writeReg10();
+    int _writeReg11();
+    int _writeReg12();
+    int _writeReg13();
+    int _writeReg14();
+    int _writeReg15();
+    int _writeReg17();
+    int _writeReg19();
+    int _writeReg25();
 };
 
 #endif

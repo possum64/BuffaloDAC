@@ -2,21 +2,34 @@
 
 ES9018::ES9018()
 {
+  setInitialised(false);
 }
 
 ES9018::ES9018(DACMode mode)
 {
   if (mode == MonoRight)
+  {
     _address = 0x49; // set default I2C address for mono right config
+  }
+  else
+  {
+  }
   _setMode(mode);
+  setInitialised(false);
 }
 
 ES9018::ES9018(DACMode mode, DACPhase oddChannels, DACPhase evenChannels)
 {
   if (mode == MonoRight)
+  {
     _address = 0x49; // set default I2C address for mono right config
+  }
+  else
+  {
+  }
   _setMode(mode);
   _setPhase(oddChannels, evenChannels);
+  setInitialised(false);
 }
 
 ES9018::ES9018(DACMode mode, DACPhase oddChannels, DACPhase evenChannels, byte address)
@@ -24,10 +37,12 @@ ES9018::ES9018(DACMode mode, DACPhase oddChannels, DACPhase evenChannels, byte a
   _address = address;
   _setMode(mode);
   _setPhase(oddChannels, evenChannels);
+  setInitialised(false);
 }
 
-void ES9018::init()
+boolean ES9018::init()
 {
+  setInitialised(true);
   _regValChanged0 = true;
   _regValChanged1 = true;   
   _regValChanged2 = true;      
@@ -46,13 +61,33 @@ void ES9018::init()
   _regValChanged17 = true;
   _regValChanged19 = true;
   _regValChanged25 = true;
-  _initialised = true;
-  _writeRegisters();
+  return _writeRegisters();
+}
+
+void ES9018::setInitialised(boolean val)
+{
+   _dac_initialised = val;
+  Serial.print(F("->DAC"));
+  Serial.print(String(_address, HEX));
+  if (_dac_initialised)
+    Serial.println(F(": initialised"));
+  else
+    Serial.println(F(": uninitialised"));
+}
+
+boolean ES9018::_getInitialised()
+{
+  return _dac_initialised;
 }
 
 DACMode ES9018::getMode()
 {
   return _mode;
+}
+
+Error ES9018::getError()
+{
+  return _error;
 }
 
 byte ES9018::getAddress()
@@ -63,7 +98,10 @@ byte ES9018::getAddress()
 boolean ES9018::locked()
 {
   byte status = _readStatusRegister(27);
-  return status & B00000001;
+  if (getError() == NoError)
+    return status & B00000001;
+  else
+    return false;
 }
 
 boolean ES9018::validSPDIF()
@@ -77,13 +115,19 @@ void ES9018::mute()
   byte reg10 = _reg10;
   bitSet(reg10,0);              // Set bit zero for reg 10: Mute DACs
   _setReg10(reg10);
+  Serial.print(F("->DAC"));
+  Serial.print(String(_address, HEX));
+  Serial.println(F(": muted"));
 }
 
 void ES9018::unmute()
 {
   byte reg10 = _reg10;
-  bitClear(reg10,0);            // Set bit zero for reg 10: UnMute DACs
+  bitClear(reg10,0);            // Clear bit zero for reg 10: UnMute DACs
   _setReg10(reg10);
+  Serial.print(F("->DAC"));
+  Serial.print(String(_address, HEX));
+  Serial.println(F(": unmuted"));
 }
 
 /*
@@ -143,14 +187,25 @@ unsigned long ES9018::sampleRate()
 
 byte ES9018::_readStatusRegister(byte regAddr) 
 {
+  _error = NoError;
   Wire.beginTransmission(_address); 
   Wire.write(regAddr);           
   Wire.endTransmission();
-  Wire.requestFrom(_address, 1); // request one byte from address
-  if(Wire.available())
-    return Wire.read();         // Return the value returned by specified register
-  else
-    return 0;
+  int n = Wire.requestFrom(_address, 1); // request one byte from address
+  unsigned long retryUntil = millis() + _readRetryInterval;
+  while (!Wire.available())
+  {
+    if (millis() > retryUntil)
+    {
+      Serial.print(F("<-DAC"));
+      Serial.print(String(_address, HEX));
+      Serial.print(F(": Timeout reading status register "));
+      Serial.println(String(regAddr));
+      _error = ReadTimeoutError;
+      return 0xFF;
+    }
+  }
+  return Wire.read();         // Return the value returned by specified register
 }
 
 void ES9018::setAttenuation(byte attenuation)
@@ -195,6 +250,11 @@ void ES9018::setBypassOSF(boolean value)
 void ES9018::setClock(DACClock value)
 {
   _clock = value;       
+}
+
+void ES9018::setReadRetryInterval(int value)
+{
+  _readRetryInterval = value;
 }
 
 void ES9018::setIIRBandwidth(IIR_Bandwidth value)
@@ -297,28 +357,50 @@ void ES9018::setFIRRollOff(FIR_RollOffMode mode)
 
 void ES9018::setDPLL(DPLLBandwidth bandwidth)
 {
+  byte val = _reg11;
+  bitClear(val, 2);
+  bitClear(val, 3);
+  bitClear(val, 4);
   switch(bandwidth)
   {
   case 0:
-    _setReg11(0x85);   // Reg 11: Set DPLL None
+    // Reg 11: Set DPLL None
     break;
   case 1:
-    _setReg11(0x89);   // Reg 11: Set DPLL Lowest
+    // Reg 11: Set DPLL Lowest
+    bitSet(val, 2);
     break;
   case 2:
-    _setReg11(0x8D);   // Reg 11: Set DPLL Low
+    // Reg 11: Set DPLL Low
+    bitSet(val, 3);
     break;
   case 3:
-    _setReg11(0x91);   // Reg 11: Set DPLL MediumLow
+    // Reg 11: Set DPLL MediumLow
+    bitSet(val, 2);
+    bitSet(val, 3);
     break;
   case 4:
-    _setReg11(0x95);   // Reg 11: Set DPLL Medium
+    // Reg 11: Set DPLL Medium
+    bitSet(val, 4);
     break;
   case 5:
-    _setReg11(0x99);   // Reg 11: Set DPLL MediumHigh
+    // Reg 11: Set DPLL MediumHigh
+    bitSet(val, 2);
+    bitSet(val, 4);
+    break;
   case 6:
-    _setReg11(0x9D);   // Reg 11: Set DPLL High
+    // Reg 11: Set DPLL High
+    bitSet(val, 3);
+    bitSet(val, 4);
+    break;
+  case 7:
+    // Reg 11: Set DPLL Highest
+    bitSet(val, 2);
+    bitSet(val, 3);
+    bitSet(val, 4);
+    break;
   }
+  _setReg11(val);
 }
 
 void ES9018::setPhaseB(DACPhase value)
@@ -396,35 +478,63 @@ void ES9018::setInputMode(DACInputMode mode)
   _setReg8(val);
 }
 
-void ES9018::_writeRegisters()
+bool ES9018::_writeRegisters()
 {
-  _writeReg0();
-  _writeReg1();
-  _writeReg2();
-  _writeReg3();
-  _writeReg4();
-  _writeReg5();
-  _writeReg6();
-  _writeReg7();
-  _writeReg8();
-  _writeReg10();
-  _writeReg11();
-  _writeReg12();
-  _writeReg13();
-  _writeReg14();
-  _writeReg15();
-  _writeReg17();
-  _writeReg19();
-  _writeReg25();
+  bool retVal = true;  
+  retVal = retVal && (_writeReg0() != -1);
+  retVal = retVal && (_writeReg1() != -1);
+  retVal = retVal && (_writeReg2() != -1);
+  retVal = retVal && (_writeReg3() != -1);
+  retVal = retVal && (_writeReg4() != -1);
+  retVal = retVal && (_writeReg5() != -1);
+  retVal = retVal && (_writeReg6() != -1);
+  retVal = retVal && (_writeReg7() != -1);
+  retVal = retVal && (_writeReg8() != -1);
+  retVal = retVal && (_writeReg10() != -1);
+  retVal = retVal && (_writeReg11() != -1);
+  retVal = retVal && (_writeReg12() != -1);
+  retVal = retVal && (_writeReg13() != -1);
+  retVal = retVal && (_writeReg14() != -1);
+  retVal = retVal && (_writeReg15() != -1);
+  retVal = retVal && (_writeReg17() != -1);
+  retVal = retVal && (_writeReg19() != -1);
+  retVal = retVal && (_writeReg25() != -1);
+  return retVal;
 }
 
 void ES9018::_setMode(DACMode mode)
 {
   _mode = mode;
   if (mode == EightChannel)
+  {
     _setReg14(0x09); // each DAC source is its own
+    Serial.print(F("Set DAC"));
+    Serial.print(String(_address, HEX));
+    Serial.println(F(": Eight Channel Mode"));
+  }
   else
+  {
     _setReg14(0xF9); // Source of DAC3 is DAC1, DAC4 is DAC2, DAC7 is DAC5, DAC8 is DAC6
+    byte val = _reg17;
+    if (mode == MonoLeft)
+    {
+      bitClear(val, 7);
+      bitSet(val, 0);
+      _setReg17(val); 
+      Serial.print(F("Set DAC"));
+      Serial.print(String(_address, HEX));
+      Serial.println(F(": Mono Left Mode"));
+    }
+    else if (mode == MonoRight)
+    {
+      bitSet(val, 7);
+      bitSet(val, 0);
+      _setReg17(val); 
+      Serial.print(F("Set DAC"));
+      Serial.print(String(_address, HEX));
+      Serial.println(F(": Mono Right Mode"));
+    }
+  }
 };
 
 void ES9018::_setPhase(DACPhase oddChannels, DACPhase evenChannels)
@@ -629,174 +739,268 @@ void ES9018::_setReg25(byte val)
   }
 };
 
-int ES9018::_writeRegister(byte regAddr, byte regVal)
+bool ES9018::_writeRegister(byte regAddr, byte regVal)
 {
+  Serial.print(F("->DAC"));
+  Serial.print(String(_address, HEX));
+  Serial.print(F(": Writing "));
+  Serial.print(String(regVal, BIN));
+  Serial.print(F(" to register "));
+  Serial.println(String(regAddr));
   Wire.beginTransmission(_address); 
   Wire.write(regAddr);               // Specifying the address of register
   int result = Wire.write(regVal);   // Writing the value into the register
   Wire.endTransmission();
-  Serial.println("DAC" + String(_address, HEX) + ": " + String(result) + " bytes of " +String(regVal, BIN) + " written to register" + String(regAddr));
-  return result;
+  byte readVal = _readStatusRegister(regAddr);
+  if (readVal != regVal)
+  {
+    Serial.print(F("->DAC"));
+    Serial.print(String(_address, HEX));
+    Serial.print(F(": -Write Error- "));
+    Serial.print(String(readVal, BIN));
+    Serial.print(F(" read from register "));
+    Serial.println(String(regAddr));
+    return false;
+  }
+  return true;
 }
 
-void ES9018::_writeReg0()
+int ES9018::_writeReg0()
 {
-  if (_initialised && _regValChanged0)
+  int retVal = 0;
+  if (_getInitialised() && _regValChanged0)
   {
-    _writeRegister(0x00, _reg0);
+    if (_writeRegister(0x00, _reg0) )
+      retVal = 1;
+    else
+      retVal = -1; 
     _regValChanged0 = false;
   }
 }
 
-void ES9018::_writeReg1()
+int ES9018::_writeReg1()
 {
-  if (_initialised && _regValChanged1)
+  int retVal = 0;
+  if (_getInitialised() && _regValChanged1)
   {
-    _writeRegister(0x01, _reg1);
+    if (_writeRegister(0x01, _reg1) )
+      retVal = 1;
+    else
+      retVal = -1;
     _regValChanged1 = false;
   }
 }
 
-void ES9018::_writeReg2()
+int ES9018::_writeReg2()
 {
-  if (_initialised && _regValChanged2)
+  int retVal = 0;
+  if (_getInitialised() && _regValChanged2)
   {
-    _writeRegister(0x02, _reg2);
+    if (_writeRegister(0x02, _reg2) )
+      retVal = 1;
+    else
+      retVal = -1;
     _regValChanged2 = false;
   }
 }
 
-void ES9018::_writeReg3()
+int ES9018::_writeReg3()
 {
-  if (_initialised && _regValChanged3)
+  int retVal = 0;
+  if (_getInitialised() && _regValChanged3)
   {
-    _writeRegister(0x03, _reg3);
+    if (_writeRegister(0x03, _reg3) )
+      retVal = 1;
+    else
+      retVal = -1;
     _regValChanged3 = false;
   }
 }
 
-void ES9018::_writeReg4()
+int ES9018::_writeReg4()
 {
-  if (_initialised && _regValChanged4)
+  int retVal = 0;
+  if (_getInitialised() && _regValChanged4)
   {
-    _writeRegister(0x04, _reg4);
+    if (_writeRegister(0x04, _reg4) )
+      retVal = 1;
+    else
+      retVal = -1;
     _regValChanged4 = false;
   }
 }
 
-void ES9018::_writeReg5()
+int ES9018::_writeReg5()
 {
-  if (_initialised && _regValChanged5)
+  int retVal = 0;
+  if (_getInitialised() && _regValChanged5)
   {
-    _writeRegister(0x05, _reg5);
+    if (_writeRegister(0x05, _reg5) )
+      retVal = 1;
+    else
+      retVal = -1;
     _regValChanged5 = false;
   }
 }
 
-void ES9018::_writeReg6()
+int ES9018::_writeReg6()
 {
-  if (_initialised && _regValChanged6)
+  int retVal = 0;
+  if (_getInitialised() && _regValChanged6)
   {
-    _writeRegister(0x06, _reg6);
+    if (_writeRegister(0x06, _reg6) )
+      retVal = 1;
+    else
+      retVal = -1;
     _regValChanged6 = false;
   }
 }
 
-void ES9018::_writeReg7()
+int ES9018::_writeReg7()
 {
-  if (_initialised && _regValChanged7)
+  int retVal = 0;
+  if (_getInitialised() && _regValChanged7)
   {
-    _writeRegister(0x07, _reg7);
+    if (_writeRegister(0x07, _reg7) )
+      retVal = 1;
+    else
+      retVal = -1;
     _regValChanged7 = false;
   }
 }
 
-void ES9018::_writeReg8()
+int ES9018::_writeReg8()
 {
-  if (_initialised && _regValChanged8)
+  int retVal = 0;
+  if (_getInitialised() && _regValChanged8)
   {
-    _writeRegister(0x08, _reg8);
+    if (_writeRegister(0x08, _reg8) )
+      retVal = 1;
+    else
+      retVal = -1;
     _regValChanged8 = false;
   }
 }
 
-void ES9018::_writeReg10()
+int ES9018::_writeReg10()
 {
-  if (_initialised && _regValChanged10)
+  int retVal = 0;
+  if (!_dac_initialised)
   {
-    _writeRegister(0x0A, _reg10);
+    Serial.print(F("->DAC"));
+    Serial.print(String(_address, HEX));
+    Serial.println(F(" not initialised"));
+  }
+  if (_getInitialised() && _regValChanged10)
+  {
+    if (_writeRegister(0x0A, _reg10) )
+      retVal = 1;
+    else
+      retVal = -1;
     _regValChanged10 = false;
   }
 }
 
-void ES9018::_writeReg11()
+int ES9018::_writeReg11()
 {
-  if (_initialised && _regValChanged11)
+  int retVal = 0;
+  if (_getInitialised() && _regValChanged11)
   {
-    _writeRegister(0x0B, _reg11);
+    if (_writeRegister(0x0B, _reg11) )
+      retVal = 1;
+    else
+      retVal = -1;
     _regValChanged11 = false;
   }
 }
 
-void ES9018::_writeReg12()
+int ES9018::_writeReg12()
 {
-  if (_initialised && _regValChanged12)
+  int retVal = 0;
+  if (_getInitialised() && _regValChanged12)
   {
-    _writeRegister(0x0C, _reg12);
+    if (_writeRegister(0x0C, _reg12) )
+      retVal = 1;
+    else
+      retVal = -1;
     _regValChanged12 = false;
   }
 }
 
-void ES9018::_writeReg13()
+int ES9018::_writeReg13()
 {
-  if (_initialised && _regValChanged13)
+ int retVal = 0;
+ if (_getInitialised() && _regValChanged13)
   {
-    _writeRegister(0x0D, _reg13);
+    if (_writeRegister(0x0D, _reg13) )
+      retVal = 1;
+    else
+      retVal = -1;
     _regValChanged13 = false;
   }
 }
 
-void ES9018::_writeReg14()
+int ES9018::_writeReg14()
 {
-  if (_initialised && _regValChanged14)
+  int retVal = 0;
+  if (_getInitialised() && _regValChanged14)
   {
-    _writeRegister(0x0E, _reg14);
+    if (_writeRegister(0x0E, _reg14) )
+      retVal = 1;
+    else
+      retVal = -1;
     _regValChanged14 = false;
   }
 }
 
-void ES9018::_writeReg15()
+int ES9018::_writeReg15()
 {
-  if (_initialised && _regValChanged15)
+  int retVal = 0;
+  if (_getInitialised() && _regValChanged15)
   {
-    _writeRegister(0x0F, _reg15);
+    if (_writeRegister(0x0F, _reg15) )
+      retVal = 1;
+    else
+      retVal = -1;
     _regValChanged15 = false;
   }
 }
 
-void ES9018::_writeReg17()
+int ES9018::_writeReg17()
 {
-  if (_initialised && _regValChanged17)
+  int retVal = 0;
+  if (_getInitialised() && _regValChanged17)
   {
-    _writeRegister(0x11, _reg17);
+    if (_writeRegister(0x11, _reg17) )
+      retVal = 1;
+    else
+      retVal = -1;
     _regValChanged17 = false;
   }
 }
 
-void ES9018::_writeReg19()
+int ES9018::_writeReg19()
 {
-  if (_initialised && _regValChanged19)
+  int retVal = 0;
+  if (_getInitialised() && _regValChanged19)
   {
-    _writeRegister(0x13, _reg19);
+    if (_writeRegister(0x13, _reg19) )
+      retVal = 1;
+    else
+      retVal = -1;
     _regValChanged19 = false;
   }
 }
 
-void ES9018::_writeReg25()
+int ES9018::_writeReg25()
 {
-  if (_initialised && _regValChanged25)
+  int retVal = 0;
+  if (_getInitialised() && _regValChanged25)
   {
-    _writeRegister(0x19, _reg25);
+    if (_writeRegister(0x19, _reg25) )
+      retVal = 1;
+    else
+      retVal = -1;
     _regValChanged25 = false;
   }
 }
