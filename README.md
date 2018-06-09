@@ -1,5 +1,5 @@
 # BuffaloDAC
-Class libraries for controlling the ES9018/28/38 Sabre32 DACs from an Arduino via I2C.
+Class libraries for controlling the ES9018/28/38 Sabre32 DACs from an Arduino via I2C (the ES9028 library also works with the ES9038 chip as the control logic is the same)
 
 Gives access to majority of the chips capabilities and provides comprehensive debug/diagnostic capabilities
 
