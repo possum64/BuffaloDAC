@@ -1,0 +1,210 @@
+#######################################
+# Syntax Coloring Map For ES9028
+#######################################
+ 
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+ 
+Mode		KEYWORD1
+Phase		KEYWORD1
+OscillatorDrive	KEYWORD1
+ClockGear	KEYWORD1
+SPDIFUserBits	KEYWORD1
+SPDIFDataFlag	KEYWORD1
+SPDIFValidFlag	KEYWORD1
+AutoSelect	KEYWORD1
+InputSelect	KEYWORD1
+AutoMute	KEYWORD1
+Bits		KEYWORD1
+SerialMode	KEYWORD1
+DeEmphSelect	KEYWORD1
+FilterShape	KEYWORD1
+IIR_Bandwidth	KEYWORD1
+GPIO		KEYWORD1
+MasterDiv	KEYWORD1
+LockSpeed	KEYWORD1
+SPDIFInput	KEYWORD1
+DpllBandwidth	KEYWORD1
+SoftStart	KEYWORD1
+VolumeMode	KEYWORD1
+FIRCoeffStage	KEYWORD1
+FIRStage2	KEYWORD1
+Input		KEYWORD1
+Gain		KEYWORD1
+ChipType	KEYWORD1
+ 
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+ 
+initialise		KEYWORD2
+getInitialised		KEYWORD2
+reset			KEYWORD2
+locked			KEYWORD2
+validSPDIF		KEYWORD2
+getMode			KEYWORD2
+getAddress		KEYWORD2
+getName			KEYWORD2
+mute			KEYWORD2
+unmute			KEYWORD2
+setOscillatorDrive	KEYWORD2
+setClockGear		KEYWORD2
+setSPDIFUserBits	KEYWORD2
+setSPDIFDataFlag	KEYWORD2
+setSPDIFValidFlag	KEYWORD2
+setAutoSelect		KEYWORD2
+setInputSelect		KEYWORD2
+setAutoMute		KEYWORD2
+setSerialBits		KEYWORD2
+setSerialLength		KEYWORD2
+setSerialMode		KEYWORD2
+setAutomuteTime		KEYWORD2
+setAutomuteLevel	KEYWORD2
+enableAutoDeEmph	KEYWORD2
+disableAutoDeEmph	KEYWORD2
+enableDeEmph		KEYWORD2
+disableDeEmph		KEYWORD2
+setDeEmphSelect		KEYWORD2
+setVolumeRate		KEYWORD2
+setFilterShape		KEYWORD2
+setIIR_Bandwidth	KEYWORD2
+setGPIO1		KEYWORD2
+setGPIO2		KEYWORD2
+setGPIO3		KEYWORD2
+setGPIO4		KEYWORD2
+enableMasterMode	KEYWORD2
+disableMasterMode	KEYWORD2
+setMasterDiv		KEYWORD2
+enable128fsMode		KEYWORD2
+disable128fsMode	KEYWORD2
+setLockSpeed		KEYWORD2
+setSPDIFInput		KEYWORD2
+invertGPIO1		KEYWORD2
+invertGPIO2		KEYWORD2
+invertGPIO3		KEYWORD2
+invertGPIO4		KEYWORD2
+nonInvertGPIO1		KEYWORD2
+nonInvertGPIO2		KEYWORD2
+nonInvertGPIO3		KEYWORD2
+nonInvertGPIO4		KEYWORD2
+setDpllBandwidthSerial	KEYWORD2
+setDpllBandwidthDSD	KEYWORD2
+enableJitterEliminator	KEYWORD2
+disableJitterEliminator	KEYWORD2
+enableTHDcompensation	KEYWORD2
+disableTHDcompensation	KEYWORD2
+enableDither		KEYWORD2
+disableDither		KEYWORD2
+setSoftStart		KEYWORD2
+enableSoftStopOnUnlock	KEYWORD2
+disableSoftStopOnUnlock	KEYWORD2
+setSoftStartTime	KEYWORD2
+setGPIOSelect1		KEYWORD2
+setGPIOSelect2		KEYWORD2
+setVolumeMode		KEYWORD2
+enableVolumeLatching	KEYWORD2
+disableVolumeLatching	KEYWORD2
+setVolume1		KEYWORD2
+setVolume2		KEYWORD2
+setVolume3		KEYWORD2
+setVolume4		KEYWORD2
+setVolume5		KEYWORD2
+setVolume6		KEYWORD2
+setVolume7		KEYWORD2
+setVolume8		KEYWORD2
+setMasterTrim		KEYWORD2
+setTHDCompensationC2	KEYWORD2
+setTHDCompensationC3	KEYWORD2
+setFIRCoeffStage	KEYWORD2
+setFIRCoeffAddr		KEYWORD2
+setFIRCoeff(		KEYWORD2
+enableFIRExternalBypassOSF	KEYWORD2
+disableFIRExternalBypassOSF	KEYWORD2
+enableFIRExtendedFilterLength	KEYWORD2
+disableFIRExternalFilterLength	KEYWORD2
+enableFIRProgExt	KEYWORD2
+disableFIRProgExt	KEYWORD2
+setFIRStage2		KEYWORD2
+enableFIRProgCoeffWrite	KEYWORD2
+disableFIRProgCoeffWrite	KEYWORD2
+enableFIRProgCoeff	KEYWORD2
+disableFIRProgCoeff	KEYWORD2
+mapInputs		KEYWORD2
+setProgrammableNCO	KEYWORD2
+setChannelGain		KEYWORD2
+GPIO_Status		KEYWORD2
+ChipType		KEYWORD2
+setMode			KEYWORD2
+automuted		KEYWORD2
+locked			KEYWORD2
+dopValid		KEYWORD2
+spdifValid		KEYWORD2
+i2sValid		KEYWORD2
+dsdValid		KEYWORD2
+long dpllNumber		KEYWORD2
+setAttenuation		KEYWORD2
+ 
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+InputSelect_DSD		LITERAL1
+InputSelect_SPDIF	LITERAL1
+InputSelect_SERIAL	LITERAL1
+MonoLeft		LITERAL1
+MonoRight		LITERAL1
+EightChannel		LITERAL1
+Stereo			LITERAL1
+DualLeft		LITERAL1
+DualRight		LITERAL1
+InPhase			LITERAL1
+AntiPhase		LITERAL1
+Input_1			LITERAL1
+Input_2			LITERAL1
+Input_3			LITERAL1
+Input_4			LITERAL1
+Input_5			LITERAL1
+Input_6			LITERAL1
+Input_7			LITERAL1
+Input_8			LITERAL1
+DPLL_Lowest		LITERAL1
+DPLL_VeryLow		LITERAL1
+DPLL_Lower		LITERAL1
+DPLL_Low		LITERAL1
+DPLL_Default		LITERAL1
+DPLL_LowToMediumLow	LITERAL1
+DPLL_MediumLow		LITERAL1
+DPLL_Medium		LITERAL1
+DPLL_MediumToMEdiumHigh	LITERAL1
+DPLL_MediumHigh		LITERAL1
+DPLL_HighToMediumHigh	LITERAL1
+DPLL_High		LITERAL1
+GPIO_Automute		LITERAL1
+GPIO_StandardInput	LITERAL1
+GPIO_Lock		LITERAL1
+GPIO_VolumeMin		LITERAL1
+GPIO_CLK		LITERAL1
+GPIO_Interrupt		LITERAL1
+GPIO_ADC_CLK		LITERAL1
+GPIO_ForceLow		LITERAL1
+GPIO_InputSelect	LITERAL1
+GPIO_MuteAll		LITERAL1
+GPIO_ADC_Input		LITERAL1
+GPIO_SoftStartComplete	LITERAL1
+GPIO_ForceHigh		LITERAL1
+Volume_UseChannel1	LITERAL1
+Volume_Independent	LITERAL1
+Filter_Brickwall	LITERAL1
+Filter_Hybrid		LITERAL1
+Filter_Apodizing	LITERAL1
+Filter_SlowMinPhase	LITERAL1
+Filter_FastMinPhase	LITERAL1
+Filter_SlowLinPhase	LITERAL1
+Filter_FastLinPhase	LITERAL1
+AutoMute_MuteAndRampToGnd	LITERAL1
+Bits_32	LITERAL1
+Bits_24	LITERAL1
+Bits_16	LITERAL1
+
+
