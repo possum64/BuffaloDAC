@@ -22,84 +22,76 @@
   #include "WConstants.h"
 #endif
 
-enum DACClock{Clock100Mhz, Clock80Mhz};
-enum DACInputMode{SPDIF, I2SorDSD};
-enum DACDeEmphasis{DeEmph32k, DeEmph441k, DeEmph48k};
-enum DACMode{MonoLeft, MonoRight, Stereo, EightChannel};
-enum DACNotchDelay{NoDelay=0, Delay4=1, Delay8=2, Delay16=3, Delay32=4, Delay64=5};
-enum DACPhase{InPhase, AntiPhase};
-enum DACQuantizer{SixBit=0, SevenBit=1, EightBit=2, NineBit=3};
-enum DPLLBandwidth{None=0, Lowest=1, Low=2, MediumLow=3, Medium=4, MedHigh=5, High=6, Highest=7};
-enum DPLLMode{AllowAll, UseBest};
-enum DPLL128Mode{UseDPLLSetting, MultiplyBy128};
-enum FIR_RollOffMode{Slow, Fast}; 
-enum FIR_Coefficients{FIR27, FIR28}; 
-enum IIR_Bandwidth{IIR_Normal, IIR_50k, IIR_60k, IIR_70k}; 
-enum SPDIFMode{SPDIF_Auto, SPDIF_Manual};
-enum Error{NoError=0, ReadTimeoutError=1};
-
 class ES9018 
 {
   public:
-    // default to 8 channel mode with default phase settings and default I2C address 0x48
-    ES9018();  
-    // specify mode with default phase settings and default I2C address 0x49 for right mono and 0x48 otherwise
-    ES9018(DACMode mode);  
-    // specify whether 8 channel, stereo, or mono left/right and channel phase with default I2C address 0x49 for right mono and 0x48 otherwise
-    ES9018(DACMode mode, DACPhase oddChannels, DACPhase evenChannels);   
-    // specify whether 8 channel, stereo, or mono left/right, channel phase and custom I2C address
-    ES9018(DACMode mode, DACPhase oddChannels, DACPhase evenChannels, byte address); 
+    enum Mode{MonoLeft, MonoRight, Stereo, EightChannel};
+    enum Phase{InPhase, AntiPhase};
+    enum Clock{Clock100Mhz, Clock80Mhz};
+    enum InputSelect{SPDIF, I2SorDSD};
+    enum DeEmphasis{DeEmph32k, DeEmph441k, DeEmph48k};
+    enum NotchDelay{NoDelay=0, Delay4=1, Delay8=2, Delay16=3, Delay32=4, Delay64=5};
+    enum Quantizer{SixBit=0, SevenBit=1, EightBit=2, NineBit=3};
+    enum DPLLBandwidth{None=0, Lowest=1, Low=2, MediumLow=3, Medium=4, MedHigh=5, High=6, Highest=7};
+    enum DPLLMode{AllowAll, UseBest};
+    enum DPLL128Mode{UseDPLLSetting, MultiplyBy128};
+    enum FIR_RollOffMode{Slow, Fast}; 
+    enum FIR_Coefficients{FIR27, FIR28}; 
+    enum IIR_Bandwidth{IIR_Normal, IIR_50k, IIR_60k, IIR_70k}; 
+    enum SPDIFMode{SPDIF_Auto, SPDIF_Manual};
 
-    boolean init();                                     //  writes all register values for the first time. After an init() any further register changes are written immediately
-    boolean locked();
-    boolean validSPDIF();
-    DACMode getMode();
+    // default to 8 channel mode with default phase settings and default I2C address 0x48
+    ES9018(String name, Clock value);  
+    // specify mode with default phase settings and default I2C address 0x49 for right mono and 0x48 otherwise
+    ES9018(String name, Clock value, Mode mode);  
+    // specify whether 8 channel, stereo, or mono left/right and channel phase with default I2C address 0x49 for right mono and 0x48 otherwise
+    ES9018(String name, Clock value, Mode mode, Phase oddChannels, Phase evenChannels);   
+    // specify whether 8 channel, stereo, or mono left/right, channel phase and custom I2C address
+    ES9018(String name, Clock value, Mode mode, Phase oddChannels, Phase evenChannels, byte address); 
+
+    bool noI2C = false;
+    bool initialise();                                     //  writes all register values for the first time. After an init() any further register changes are written immediately
+    bool getInitialised();
+    void reset();
+    bool validSPDIF(bool &status);
+    ES9018::Mode getMode();
+    bool locked();
+    bool locked(bool &readError);
     byte getAddress();                               // returns the I2C address
-    Error getError();                                // returns the I2C address
-    void mute();
-    void unmute();
+    String getName();
+    bool mute();
+    bool unmute();
     unsigned long sampleRate();
-    void setInitialised(boolean val);
-    void setAttenuation(byte attenuation);
-    void setAutoMuteLevel(byte level);
-    void setBypassOSF(boolean value);
-    void setClock(DACClock value);                  // sets the clock rate used to calculate sample rate
-    void setDeEmphasis(DACDeEmphasis mode);
-    void setDPLLMode(DPLLMode mode);
-    void setDPLL(DPLLBandwidth bandwidth);
-    void setDPLL128Mode(DPLL128Mode mode);
-    void setFIRRollOff(FIR_RollOffMode mode);
-    void setFIRPhase(DACPhase phase);
-    void setInputMode(DACInputMode mode);
-    void setIIRBandwidth(IIR_Bandwidth value);
-    void setJitterReduction(boolean value);
-    void setJitterReductionBypass(boolean value);
-    void setQuantizer(DACQuantizer value);
-    void setNotchDelay(DACNotchDelay value);
-    void setPhaseB(DACPhase value);
-    void setSPDIFMode(SPDIFMode mode);
-    void setSPDIFAutoDeEmphasis(boolean value);
-    void setReadRetryInterval(int value);
+    bool setAttenuation(byte attenuation);
+    bool setAutoMuteLevel(byte level);
+    bool setBypassOSF(boolean value);
+    bool setDeEmphasis(DeEmphasis mode);
+    bool setDPLLMode(DPLLMode mode);
+    bool setDPLL(DPLLBandwidth bandwidth);
+    bool setDPLL128Mode(DPLL128Mode mode);
+    bool setFIRRollOff(FIR_RollOffMode mode);
+    bool setFIRPhase(Phase phase);
+    bool setInputSelect(InputSelect mode);
+    bool setIIRBandwidth(IIR_Bandwidth value);
+    bool setJitterReduction(boolean value);
+    bool setJitterReductionBypass(boolean value);
+    bool setQuantizer(Quantizer value);
+    bool setNotchDelay(NotchDelay value);
+    bool setPhaseB(Phase value);
+    bool setSPDIFMode(SPDIFMode mode);
+    bool setSPDIFAutoDeEmphasis(boolean value);
 
   private:
-    DACMode _mode = EightChannel;   // default to eight channel mode
+    bool _locked(bool &status);
+    String _name;
+    Mode _mode = EightChannel;   // default to eight channel mode
     byte _address = 0x48;           // set default I2C address
-    DACClock _clock = Clock100Mhz;  // set default clock speed to 100Mhz
-    boolean _dac_initialised;
-    int _readRetryInterval = 20;    // _readStatusRegister retry interval
-    Error _error;		    // last error
+    Clock _clock = Clock100Mhz;  // set default clock speed to 100Mhz
+    bool _initialised = false;
+    const int _readRetryInterval = 20;    // _readRegister retry interval
+    Phase _oddChannels = InPhase;
+    Phase _evenChannels = InPhase;
 
-    // Register variables
-    byte _reg0 = 0;       // channel 1 attenuation;
-    byte _reg1 = 0;       // channel 2 attenuation;
-    byte _reg2 = 0;       // channel 3 attenuation;
-    byte _reg3 = 0;       // channel 4 attenuation;
-    byte _reg4 = 0;       // channel 5 attenuation;
-    byte _reg5 = 0;       // channel 6 attenuation;
-    byte _reg6 = 0;       // channel 7 attenuation;
-    byte _reg7 = 0;       // channel 8 attenuation;
- 
-    byte _reg8 = 0x68;               
     /*
     Register 8 (0x08) Auto-mute level, manual spdif/i2s
       |0| | | | | | | |  Use I2S or DSD (D)
@@ -129,7 +121,7 @@ class ES9018
       purpose of (3)
     */
 
-    byte _reg10 = 0xCE;               // jitter ON, dacs unmute, other defaults;
+    //byte _reg10 = 0xCE;               // jitter ON, dacs unmute, other defaults;
     /*
      Register 10 (0x0A) (MC2)
       | | | | |1| | | |  jitter reduction bypass on
@@ -138,7 +130,7 @@ class ES9018
       | | | | | | | |0|  unmute
     */
  
-    byte _reg11 = B10001110;               
+    //byte _reg11 = B10001110;               
     /*
      Register 11 (0x0B) (MC2)
       |1|0|0| | | | | |  Reserved, Must be 100 (D)
@@ -159,7 +151,7 @@ class ES9018
       10000101 or 0x85 (or decimal 133)
     */
 
-    byte _reg12 = 0x1F;  // default to n/64 notch delay          
+    //byte _reg12 = 0x1F;  // default to n/64 notch delay          
     /*
     Register 12 (0x0C) Notch Delay
     |0|x|x|x|x|x|x|x| Dither Control: Apply
@@ -179,21 +171,21 @@ class ES9018
     |0|0|1|0|0|0|0|0| Power-on Default
     */
 
-    byte _reg13 = 0x00;               
+    //byte _reg13 = 0x00;               
     /*
     Register 13 (0x0D) DAC polarity
     In-phase: 0x00 (all 8 channels) (D)
     Anti-phase: 0xFF (all 8 channels)
     */
 
-    byte _reg19 = 0x00;               
+    //byte _reg19 = 0x00;               
     /*
     Register 19 (0x13) DACB polarity
     In-phase: 0xFF (all 8 channels)
     Anti-phase: 0x00 (all 8 channels) (D)
     */
 
-   byte _reg14 = 0xF9;               
+   //byte _reg14 = 0xF9;               
     /*
     Set up for I2S/DSD support according to BuffII input wiring
  
@@ -218,9 +210,9 @@ class ES9018
      11111001 or 0xF9 for I2S, normal BW (PCM) and fast roll off (default for BuffII)
     */
 
-    byte _reg15 = 0x00;    // 6-bit quantizer           
+    //byte _reg15 = 0x00;    // 6-bit quantizer           
 
-    byte _reg17 = 0x1C;               
+    //byte _reg17 = 0x1C;               
     /*
       Register 17 (0x11) (MC5)
        |1| | | | | | | |  Mono Right (if set for MONO)
@@ -241,7 +233,7 @@ class ES9018
        | | | | | | | |0|  Eight channel (D)
     */
 
-    byte _reg25 = 0;                  
+    //byte _reg25 = 0;                  
     /*
      Register 25 (0x19): DPLL Mode control
       |0|0|0|0|0|0| | | Reserved, must be zeros (D)
@@ -256,69 +248,16 @@ class ES9018
      00000010 or 0x02
     */
 
-    // register change variables
-    boolean _regValChanged0 = true;      // indicates whether the value of register 00 has changed
-    boolean _regValChanged1 = true;      // indicates whether the value of register 01 has changed
-    boolean _regValChanged2 = true;      // indicates whether the value of register 02 has changed
-    boolean _regValChanged3 = true;      // indicates whether the value of register 03 has changed
-    boolean _regValChanged4 = true;      // indicates whether the value of register 04 has changed
-    boolean _regValChanged5 = true;      // indicates whether the value of register 05 has changed
-    boolean _regValChanged6 = true;      // indicates whether the value of register 06 has changed
-    boolean _regValChanged7 = true;      // indicates whether the value of register 07 has changed
-    boolean _regValChanged8 = true;      // indicates whether the value of register 08 has changed
-    boolean _regValChanged10 = true;     // indicates whether the value of register 10 has changed
-    boolean _regValChanged11 = true;     // indicates whether the value of register 11 has changed
-    boolean _regValChanged12 = false;    // indicates whether the value of register 11 has changed
-    boolean _regValChanged13 = true;     // indicates whether the value of register 13 has changed
-    boolean _regValChanged14 = true;     // indicates whether the value of register 14 has changed
-    boolean _regValChanged15 = true;     // indicates whether the value of register 15 has changed
-    boolean _regValChanged17 = true;     // indicates whether the value of register 17 has changed
-    boolean _regValChanged19 = false;    // indicates whether the value of register 19 has changed
-    boolean _regValChanged25 = true;     // indicates whether the value of register 25 has changed
-
-    boolean _getInitialised();
-    byte _readStatusRegister(byte regAddr); 
-    void _setMode(DACMode mode);
-    void _setPhase(DACPhase oddChannels, DACPhase evenChannels);
-    void _setReg0(byte val);
-    void _setReg1(byte val);
-    void _setReg2(byte val);
-    void _setReg3(byte val);
-    void _setReg4(byte val);
-    void _setReg5(byte val);
-    void _setReg6(byte val);
-    void _setReg7(byte val);
-    void _setReg8(byte val);
-    void _setReg10(byte val);
-    void _setReg11(byte val);
-    void _setReg12(byte val);
-    void _setReg13(byte val);
-    void _setReg14(byte val);
-    void _setReg15(byte val);
-    void _setReg17(byte val);
-    void _setReg19(byte val);
-    void _setReg25(byte val);
-
-    bool _writeRegister(byte regAddr, byte regVal); // writes the specified register value to the specified DAC register via I2C
-    bool _writeRegisters();                        // write all registers
-    int _writeReg0();
-    int _writeReg1();
-    int _writeReg2();
-    int _writeReg3();
-    int _writeReg4();
-    int _writeReg5();
-    int _writeReg6();
-    int _writeReg7();
-    int _writeReg8();
-    int _writeReg10();
-    int _writeReg11();
-    int _writeReg12();
-    int _writeReg13();
-    int _writeReg14();
-    int _writeReg15();
-    int _writeReg17();
-    int _writeReg19();
-    int _writeReg25();
+    boolean _readRegister(byte regAddr, byte &regVal); 
+    bool _writeRegister(byte regAddr, byte regVal);             // writes the specified register value to the specified DAC register via I2C
+    boolean _writeRegisterBits(byte regAddr, String bits); 
+    boolean _changeByte(byte &val, String bits);
+    boolean _writeMode();
+    boolean _writePhase();
+    void _setMode(Mode mode);
+    void _setPhase(Phase oddChannels, Phase evenChannels);
+    void _setInitialised(boolean val);
+    void _printDAC();
 };
 
 #endif

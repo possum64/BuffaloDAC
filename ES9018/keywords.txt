@@ -6,13 +6,14 @@
 # Datatypes (KEYWORD1)
 #######################################
  
-ES9018	KEYWORD1
-DACMode	KEYWORD1
-DACInputMode	KEYWORD1
-DACDeEmphasis	KEYWORD1
-DACNotchDelay	KEYWORD1
-DACPhase	KEYWORD1
-DACQuantizer	KEYWORD1
+ES9018		KEYWORD1
+Mode		KEYWORD1
+Clock		KEYWORD1
+InputSelect	KEYWORD1
+DeEmphasis	KEYWORD1
+NotchDelay	KEYWORD1
+Phase		KEYWORD1
+Quantizer	KEYWORD1
 DPLLBandwidth	KEYWORD1
 DPLLMode	KEYWORD1
 DPLL128Mode	KEYWORD1
@@ -25,13 +26,16 @@ SPDIFMode	KEYWORD1
 # Methods and Functions (KEYWORD2)
 #######################################
  
-init	KEYWORD2
-locked	KEYWORD2
+initialise	KEYWORD2
+getInitialised	KEYWORD2
+reset		KEYWORD2
+locked		KEYWORD2
 validSPDIF	KEYWORD2
-getMode	KEYWORD2
+getMode		KEYWORD2
 getAddress	KEYWORD2
-mute	KEYWORD2
-unmute	KEYWORD2
+getName		KEYWORD2
+mute		KEYWORD2
+unmute		KEYWORD2
 sampleRate	KEYWORD2
 setAttenuation	KEYWORD2
 setAutoMuteLevel	KEYWORD2
@@ -42,7 +46,7 @@ setDPLL	KEYWORD2
 setDPLL128Mode	KEYWORD2
 setFIRRollOff	KEYWORD2
 setFIRPhase	KEYWORD2
-setInputMode	KEYWORD2
+setInputSelect	KEYWORD2
 setIIRBandwidth	KEYWORD2
 setJitterReductionBypass	KEYWORD2
 setJitterReduction	KEYWORD2
