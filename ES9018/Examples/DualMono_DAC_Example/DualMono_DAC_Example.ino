@@ -5,30 +5,33 @@
   sets input to SPDIF, initialises the attenuation to 25Db, sets the DPLL to 'Lowest',
   unmutes the DACs after 300 milliseconds, and shows the lock status via the built in LED
 */
-ES9018 leftDAC  = ES9018(MonoLeft, InPhase, AntiPhase);
-ES9018 rightDAC = ES9018(MonoRight, AntiPhase, InPhase);
+ES9018 leftDAC  = ES9018("Left Channel", ES9018::Clock100Mhz, ES9018::MonoLeft, ES9018::InPhase, ES9018::AntiPhase);
+ES9018 rightDAC = ES9018("Right Channel", ES9018::Clock100Mhz, ES9018::MonoRight, ES9018::AntiPhase, ES9018::InPhase);
 
-void initDAC(ES9018 dac)
+void configureDAC(ES9018 dac)
 {
   dac.mute();
-  dac.setInputMode(SPDIF);
-  dac.setDPLL128Mode(UseDPLLSetting);
-  dac.setDPLLMode(AllowAll);
-  dac.setDPLL(Lowest);
+  dac.setInputSelect(ES9018::SPDIF);
+  dac.setDPLL128Mode(ES9018::UseDPLLSetting);
+  dac.setDPLLMode(ES9018::AllowAll);
+  dac.setDPLL(ES9018::Lowest);
   dac.setAttenuation(25);
-  dac.init();  // init() writes all register values for the first time. After an init() any further register changes are written immediately
 }
 
 void setup() {
-  // initialize digital pin LED_BUILTIN as an output.
+  // initialize digital pin LED_BUILTIN as the DAC lock light.
   pinMode(LED_BUILTIN, OUTPUT);
-  initDAC(leftDAC);
-  initDAC(rightDAC);
-  delay(300);
+  delay(1500);
+  if (leftDAC.initialise())
+    configureDAC(leftDAC);
+  if (rightDAC.initialise())
+    configureDAC(rightDAC);
+  delay(500);
   leftDAC.unmute();
   rightDAC.unmute();
 }
 
 void loop() {
   digitalWrite(LED_BUILTIN, leftDAC.locked() && rightDAC.locked());   // turn the LED on if both DACs locked
+  delay(100);
 }
