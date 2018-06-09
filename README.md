@@ -1,10 +1,6 @@
 # BuffaloDAC
-Class library for controlling the ES9018 Sabre32 DAC from an Arduino via I2C 
+Class libraries for controlling the ES9018/28/38 Sabre32 DACs from an Arduino via I2C.
 
-  In essence, this library repackages much of the code from the HifiDuino Sabre32 project (see https://hifiduino.wordpress.com/sabre32/)
-  into a C++ class in order to make it more 'user friendly' by abstracting the programmer from having to deal with the underlying 
-  bits 'n' bytes of the DAC's registry settings.
+Gives access to majority of the chips capabilities and provides comprehensive debug/diagnostic capabilities
 
-  All DAC registry writes can be viewed via the Arduino's serial monitor
-
-  (see the WIRE library for details on connecting an I2C device to an Arduino board. Be aware that most I2C devices use 3.3 volts!)
+(see the WIRE library for details on connecting an I2C device to an Arduino board. Be aware that most I2C devices, including the Sabre DACs use 3.3 volts! - whereas Arduinos use 5 volts. The Sabre DAC I2S input is supposedly 5 volt-tolerant, but you should use an I2C isolator in any case to prevent noise from the Arduino interfering with the DAC. TIP: Keep yur I2C leads relatively short to avoid unreliable communications)
