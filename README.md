@@ -3,7 +3,7 @@ Class libraries for controlling the ES9018/28/38 Sabre DACs from an Arduino via 
 
 The libraries were originally written to work in conjunction with the Twisted Pair Audio Buffalo DACs, but will work with any ES9018/28/38 implementation providing access to the chip's I2C interface. The libraries gives access to the majority of the chips capabilities. Memory usage has been optimised, and comprehensive debug/diagnostics are built into the libraries.
 
-the ES9028 library has been tested to work with an ES9028/38 chip transplanted onto a Buffalo III 8-channel DAC board (the chips are pin compatible). Only the firmware needs to be changed). You must remove the onboard firmware chip first of course, and upgrade the trident regulators to the latest SR version or provide an alternative capable of stisfying the increased power requrements of the new chips. 
+the ES9028 library has been tested to work with an ES9028/38 chip transplanted onto a Buffalo III 8-channel DAC board (the chips are pin compatible). Only the firmware needs to be changed). You must remove the onboard firmware chip first of course, and upgrade the trident regulators to the latest SR version or provide an alternative capable of satisfying the increased power requrements of the new chips. 
 
 You must also ensure that the ES9028/38 chip's RESET pin is pulled high to enable it before commencing I2C communications (an optocoupler IC does the job nicely). You can simply use a jumper for initial testing, but beware that the ES9028/38 chip will emit loud noise if it is not configured correctly to match the input digital stream (by default it expects 32bit I2S data - whereas many I2S sources provide 24 bit data). 
 
