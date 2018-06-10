@@ -1,6 +1,8 @@
 # BuffaloDAC
-Class libraries for controlling the ES9018/28/38 Sabre32 DACs from an Arduino via I2C (the ES9028 library also works with the ES9038 chip as the control logic is the same)
+Class libraries for controlling the ES9018/28/38 Sabre DACs from an Arduino via I2C (the ES9028 library also works with the ES9038 chip as the control logic is the same)
 
-Gives access to majority of the chips capabilities and provides comprehensive debug/diagnostic capabilities
+The libraries were originally written to work in conjunction with the Twisted Pair Audio Buffalo DACs, but will work with any ES9018/28/38 implementation providing access to the chip's I2C interface. The libraries gives access to the majority of the chips capabilities. Memory usage has been optimised, and comprehensive debug/diagnostics are built into the libraries.
+
+Each chip library includes an initialise() method that configures the DAC inputs to one of the standard presets (stereo, 8-channel, mono left/right etc). This method must be called before configuring any other settings. All configuration methods return a boolean indicating whether the change was written successfully to the DAC. This and other diagnostic information can be used to detect and resolve I2C issues (usually caused by too long or bad connections), and DAC startup issues (for example, the TPA trident series regulators take around 1.5 seconds to ramp up to full operating voltage, so I2C communications must be delayed appropriately).
 
 (see the WIRE library for details on connecting an I2C device to an Arduino board. Be aware that most I2C devices, including the Sabre DACs use 3.3 volts! - whereas Arduinos use 5 volts. The Sabre DAC I2S input is supposedly 5 volt-tolerant, but you should use an I2C isolator in any case to prevent noise from the Arduino interfering with the DAC. TIP: Keep your I2C leads relatively short to avoid unreliable communications)
