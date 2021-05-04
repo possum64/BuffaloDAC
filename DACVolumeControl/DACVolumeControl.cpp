@@ -16,7 +16,7 @@
     pinMode(_pinMotor2, OUTPUT);
   };
   
-  void DACVolumeControl::evaluate()
+  void DACVolumeControl::loop()
   {
     if (_dacCtrl->getPower() && _dacCtrl->initialised())
     {

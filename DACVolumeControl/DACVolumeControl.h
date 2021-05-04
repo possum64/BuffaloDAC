@@ -15,7 +15,7 @@ class DACVolumeControl
 
     DACVolumeControl(DACControl* dacCtrl, byte pinAnalogInput);
     DACVolumeControl(DACControl* dacCtrl, byte pinAnalogInput, byte pinMotor1, byte pinMotor2);
-    void evaluate();
+    void loop();
     void volumeUp();
     void volumeDown();
     void initialise();
