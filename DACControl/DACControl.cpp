@@ -546,6 +546,7 @@ void DACControl::_eventBeforePowerOff()
     {
         // set the SDA and SCL pins (A4, A5 respectively) for I2S comms on the 8266 and join the I2C bus as a master
       Msg::print(F("Joining I2C Bus as master"));
+#if defined(ESP8266)
       if ((_pinSDA != 255) && (_pinSCL != 255))
       {
         if (_addrI2C == 255)
@@ -561,6 +562,7 @@ void DACControl::_eventBeforePowerOff()
         }
       }
       else
+#endif
       {
         if (_addrI2C == 255)
         {
@@ -576,7 +578,9 @@ void DACControl::_eventBeforePowerOff()
       }
       if (_clockStretchLimit != -1)
       {
+#if defined(ESP8266)
         Wire.setClockStretchLimit(_clockStretchLimit);    // in µs
+#endif
       }
     }
 
