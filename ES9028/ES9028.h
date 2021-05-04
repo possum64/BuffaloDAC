@@ -6,6 +6,8 @@
   (see the WIRE library for details on connecting an I2C device to an Arduino board. Be aware that most I2C devices use 3.3 volts!)
 */
 
+#include <global.h>
+#include "SerialHelper.h"
 #include <Wire.h>
 
 #ifndef ES9028_h
@@ -49,11 +51,13 @@ class ES9028
     enum Input{Input_1=0, Input_2=1, Input_3=2, Input_4=3, Input_5=4, Input_6=5, Input_7=6, Input_8=7};
     enum Gain{Gain_None=0, Gain_18db=1};
     enum ChipType{Chip_Unknown=0, Chip_ES9028PRO=1, Chip_ES9038PRO=2};
+    enum SignalType{Signal_DoP=0, Signal_SPDIF=1, Signal_I2S=2, Signal_DSD=3, Signal_NONE=4};
     
     ES9028(String name);                            // default to 8 channel mode with default I2C address 0x48
     ES9028(String name, Mode mode);
     ES9028(String name, byte addr);                 // default to 8 channel mode with default I2C address 0x48
     ES9028(String name, Mode mode, byte addr);    
+    byte clock = 10;				                        // value of clock used (in 10s of MHz). 10 = 100MHz.
     bool noI2C = false;                             // set to true for debugging/development of code when Arduino not connected via I2C to DAC
     bool initialise();                              // writes mode and phase values. Other registers can only be changed after this method is called.
     bool getInitialised();  
@@ -64,8 +68,8 @@ class ES9028
     bool setOscillatorDrive(OscillatorDrive val);   // Configures a clock divider network that can reduce the power consumption of the chip
     bool setClockGear(ClockGear val);               // Software configurable hardware reset with the ability to reset the design to its initial power-on configuration.
     bool setSPDIFUserBits(SPDIFUserBits val);       // Setting user_bits will present the SPDIF user bits on the read-only register interface instead of the default channel status bits.
-    bool setSPDIFDataFlag(SPDIFDataFlag val);       // Configures the SPDIF decoder to ignore the ‘data’ flag in the channel status bits.
-    bool setSPDIFValidFlag(SPDIFValidFlag val);     // Configures the SPDIF decoder to ignore the ‘valid’ flag in the SPDIF stream.
+    bool setSPDIFDataFlag(SPDIFDataFlag val);       // Configures the SPDIF decoder to ignore the ï¿½dataï¿½ flag in the channel status bits.
+    bool setSPDIFValidFlag(SPDIFValidFlag val);     // Configures the SPDIF decoder to ignore the ï¿½validï¿½ flag in the SPDIF stream.
     bool setAutoSelect(AutoSelect val);             // Allows the SABRE DAC to automatically select between either serial, SPDIF or DSD input formats
     bool setInputSelect(InputSelect val);           // Configures the SABRE DAC to use a particular input decoder if auto_select is disabled.
     bool setAutoMute(AutoMute val);                 // Configures the automute state machine
@@ -111,26 +115,26 @@ class ES9028
     bool disableTHDcompensation();                  // Disables THD compensation
     bool enableDither();                            // Enables dither in the noise shaped modulators
     bool disableDither();                           // Disables dither in the noise shaped modulators
-    bool setSoftStart(SoftStart val);               // The Sabre DAC initializes both DAC and DACB to GND, and then ramps up the signal to AVCC/2. DAC and DACB remain in phase until the ramp is complete. Soft_start controls the ramp operation and defaults to 1’b1 (ramp to AVCC /2)
+    bool setSoftStart(SoftStart val);               // The Sabre DAC initializes both DAC and DACB to GND, and then ramps up the signal to AVCC/2. DAC and DACB remain in phase until the ramp is complete. Soft_start controls the ramp operation and defaults to 1ï¿½b1 (ramp to AVCC /2)
     bool enableSoftStopOnUnlock();                  // Automatically ramps the output low when lock is lost
     bool disableSoftStopOnUnlock();                 // Does not automatically ramp the output low when lock is lost
     bool setSoftStartTime(byte val);                // Sets the amount of time it takes to perform a soft-start ramp. The value is valid from 0 to 20 (inclusive).
-    bool setGPIOSelect1(InputSelect val);           // Selects which input type will be selected when GPIOX = 1’b1
-    bool setGPIOSelect2(InputSelect val);           // Selects which input type will be selected when GPIOX = 1’b1
+    bool setGPIOSelect1(InputSelect val);           // Selects which input type will be selected when GPIOX = 1ï¿½b1
+    bool setGPIOSelect2(InputSelect val);           // Selects which input type will be selected when GPIOX = 1ï¿½b1
     bool setVolumeMode(VolumeMode val);             // Force all eight channels to use the volume coefficients from channel 1.
     bool enableVolumeLatching();                    // enables the volume control registers (default)
     bool disableVolumeLatching();                   // disables latching of the volume control registers
-    bool setVolume1(byte val);                      // Channel 1 - Default of 8’d0 -0dB to -127.5dB with 0.5dB steps
-    bool setVolume2(byte val);                      // Channel 2 - Default of 8’d0 -0dB to -127.5dB with 0.5dB steps
-    bool setVolume3(byte val);                      // Channel 3 - Default of 8’d0 -0dB to -127.5dB with 0.5dB steps
-    bool setVolume4(byte val);                      // Channel 4 - Default of 8’d0 -0dB to -127.5dB with 0.5dB steps
-    bool setVolume5(byte val);                      // Channel 5 - Default of 8’d0 -0dB to -127.5dB with 0.5dB steps
-    bool setVolume6(byte val);                      // Channel 6 - Default of 8’d0 -0dB to -127.5dB with 0.5dB steps
-    bool setVolume7(byte val);                      // Channel 7 - Default of 8’d0 -0dB to -127.5dB with 0.5dB steps
-    bool setVolume8(byte val);                      // Channel 8 - Default of 8’d0 -0dB to -127.5dB with 0.5dB steps
-    bool setMasterTrim(unsigned long val);          // A 32-bit signed value that sets the 0dB level for all volume controls. Defaults to full-scale (32’h7FFFFFFF).
-    bool setTHDCompensationC2(int val);             // A 16-bit signed coefficient for correcting for the second harmonic distortion. Defaults to 16’d0.
-    bool setTHDCompensationC3(int val);             // A 16-bit signed coefficient for correcting for the third harmonic distortion. Defaults to 16’d0.
+    bool setVolume1(byte val);                      // Channel 1 - Default of 8ï¿½d0 -0dB to -127.5dB with 0.5dB steps
+    bool setVolume2(byte val);                      // Channel 2 - Default of 8ï¿½d0 -0dB to -127.5dB with 0.5dB steps
+    bool setVolume3(byte val);                      // Channel 3 - Default of 8ï¿½d0 -0dB to -127.5dB with 0.5dB steps
+    bool setVolume4(byte val);                      // Channel 4 - Default of 8ï¿½d0 -0dB to -127.5dB with 0.5dB steps
+    bool setVolume5(byte val);                      // Channel 5 - Default of 8ï¿½d0 -0dB to -127.5dB with 0.5dB steps
+    bool setVolume6(byte val);                      // Channel 6 - Default of 8ï¿½d0 -0dB to -127.5dB with 0.5dB steps
+    bool setVolume7(byte val);                      // Channel 7 - Default of 8ï¿½d0 -0dB to -127.5dB with 0.5dB steps
+    bool setVolume8(byte val);                      // Channel 8 - Default of 8ï¿½d0 -0dB to -127.5dB with 0.5dB steps
+    bool setMasterTrim(unsigned long val);          // A 32-bit signed value that sets the 0dB level for all volume controls. Defaults to full-scale (32ï¿½h7FFFFFFF).
+    bool setTHDCompensationC2(int val);             // A 16-bit signed coefficient for correcting for the second harmonic distortion. Defaults to 16ï¿½d0.
+    bool setTHDCompensationC3(int val);             // A 16-bit signed coefficient for correcting for the third harmonic distortion. Defaults to 16ï¿½d0.
     bool setFIRCoeffStage(FIRCoeffStage val);       // Selects which stage of the filter to write.
     bool setFIRCoeffAddr(byte val);                 // Selects the coefficient address when writing custom coefficients for the oversampling filter
     bool setFIRCoeff(unsigned long val);            // A 32-bit signed filter coefficient that will be written to the address defined in prog_coeff_addr.
@@ -151,14 +155,16 @@ class ES9028
     bool GPIO_Status(bool &gpio1, bool &gpio2, bool &gpio3, bool &gpio4);
     ES9028::ChipType chipType();                    // returns whether the chip is an ES2028/38 or unknown
     bool setMode(Mode val);                         // Stereo, 8 channel, or mono left/right operation 
-    bool automuted();                               // returns true if Automute condition has been flagged and is active
+    bool getAutomuted(bool &automuteStatus);        // returns true if Automute read successful and sets the parameter reference to true if Automute has been flagged and is active
     bool locked();                                  // returns true if DPLL is locked to the incoming audio sample rate, or the Sabre is in master mode, 128fs_mode or NCO mode mode
     bool locked(bool &readError);
     bool dopValid();                                // returns true if the DoP decoder has detected a valid DoP signal on the I2S or SPDIF inputs.
     bool spdifValid();                              // returns true if the SPDIF decoder has decoded a sequence of valid SPDIF frames.
     bool i2sValid();                                // returns true if the I2S decoder has detected a valid frame clock and bit clock arrangement.
     bool dsdValid();                                // returns true if the DSD decoder is being used as a fallback option if I2S and SPDIF have both failed to decode their respective input signals.
-    long dpllNumber();                              // returns the ratio between the MCLK and the audio clock rate once the DPLL has acquired lock
+    ES9028::SignalType getSignalType();             // returns signal type.
+    unsigned long dpllNumber();                     // returns the ratio between the MCLK and the audio clock rate once the DPLL has acquired lock
+    unsigned long getSampleRate();                  // returns the sample rate
     bool setAttenuation(byte attenuation);          // sets the same attenuation for each DAC
   private:
     Mode _mode = EightChannel;                      // default is eight channel mode
@@ -167,7 +173,7 @@ class ES9028
     bool _initialised = false;
     bool _locked(bool &lockStatus);
     ChipType _chipType = Chip_Unknown;
-    const int _readRetryInterval = 20;              // _readRegister retry interval
+    const int _readRetries = 5;                     // _readRegister read error retries
     Phase _oddChannels = InPhase;
     Phase _evenChannels = InPhase;
 
@@ -180,6 +186,7 @@ class ES9028
     bool _changeByte(byte &val, String bits);
     void _setInitialised(boolean val);
     void _printDAC();
+    void _printDAC(Msg::Level level);
     bool _setInputs(byte reg, Input inputA, Input inputB);
     bool _getChipType(ChipType &chip);
 };
